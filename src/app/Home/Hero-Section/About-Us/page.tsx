@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AboutPage() {
-  const { ref, inView } = useInView({ threshold: 0.2 }); // removed triggerOnce
+  const { ref, inView } = useInView({ threshold: 0.2 });
 
   return (
     <section
@@ -41,10 +41,10 @@ export default function AboutPage() {
             </h3>
             <p className="text-base text-gray-900 leading-relaxed mb-6">
               At the heart of our photography is a passion for storytelling. With
-              years of experience capturing life's most cherished moments, we
+              years of experience capturing life&#39;s most cherished moments, we
               believe every photo should reflect the essence of your unique
               journey. Our approach blends creativity with technical skill to
-              deliver images that last a lifetime. Whether it’s a candid portrait
+              deliver images that last a lifetime. Whether it&#39;s a candid portrait
               or a breathtaking landscape, we are committed to turning your vision
               into art.
             </p>
