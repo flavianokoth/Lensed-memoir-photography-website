@@ -13,7 +13,7 @@ export default function Header() {
         {/* Logo + Title */}
         <div className="flex items-center gap-2">
           <Image
-            src="/logo.png"
+            src="/LENSED MEMOIR.png"
             alt="Lensed Memoir logo"
             width={36}
             height={36}
