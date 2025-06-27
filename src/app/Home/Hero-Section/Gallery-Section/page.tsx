@@ -48,7 +48,7 @@ export default function GallerySection() {
             </div>
 
             <Link
-              href="./Gallery"
+              href="./gallery"
               className="inline-block border border-black rounded-full px-6 py-2 text-sm font-semibold text-black hover:bg-gray-200 transition"
             >
               View All
