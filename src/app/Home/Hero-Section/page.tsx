@@ -29,7 +29,7 @@ export default function HomeHero() {
             Contact Us
           </Link>
           <Link
-            href="./gallery"
+            href="./Gallery"
             className="text-white border border-white px-6 py-2 rounded-md text-sm font-medium hover:bg-white hover:text-black transition"
           >
             See Our Gallery
