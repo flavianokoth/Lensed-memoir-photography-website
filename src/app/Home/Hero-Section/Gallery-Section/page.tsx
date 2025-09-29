@@ -3,10 +3,10 @@ import { useInView } from "react-intersection-observer";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+
 export default function GallerySection() {
   const { ref, inView } = useInView({ threshold: 0.2 });
 
-  // Just 6 images for 2 columns x 3 rows
   const gallery = [
     { src: "/gallery 1.jpg", alt: "Gallery 1" },
     { src: "/gallery 2.jpg", alt: "Gallery 2" },
@@ -15,6 +15,9 @@ export default function GallerySection() {
     { src: "/gallery 5.jpg", alt: "Gallery 5" },
     { src: "/gallery 6.jpg", alt: "Gallery 6" },
   ];
+
+  // Example random heights for masonry effect
+  const heights = [300, 400, 250, 350, 280, 420];
 
   return (
     <section ref={ref} className="py-24 px-4 sm:px-8 lg:px-16 bg-white">
@@ -31,20 +34,23 @@ export default function GallerySection() {
               Our Gallery
             </h2>
 
-            {/* 2 columns, 3 rows, with gaps */}
-            <div
-              className="grid grid-cols-2 gap-6 my-12"
-            >
+            {/* Masonry columns */}
+            <div className="columns-1 sm:columns-2 md:columns-3 gap-4 my-12">
               {gallery.map((item, index) => (
-                <div key={index} className="relative w-full h-64">
-                   <Image
-                     src={item.src}
-                     alt={item.alt}
-                     fill
-                     className="object-cover rounded-lg shadow-md"
-                   />
-                 </div>
-               ))}
+                <div
+                  key={index}
+                  className="mb-4 break-inside-avoid rounded-lg overflow-hidden shadow-md"
+                  style={{ height: heights[index % heights.length] }}
+                >
+                  <Image
+                    src={item.src}
+                    alt={item.alt}
+                    width={600}
+                    height={heights[index % heights.length]}
+                    className="w-full h-auto object-cover"
+                  />
+                </div>
+              ))}
             </div>
 
             <Link
@@ -55,8 +61,7 @@ export default function GallerySection() {
             </Link>
           </motion.div>
         )}
-
       </AnimatePresence>
     </section>
-  )
+  );
 }

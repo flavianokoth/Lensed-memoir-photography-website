@@ -2,6 +2,7 @@
   "name": "photography",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -9,9 +10,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "framer-motion": "^12.12.2",
     "keen-slider": "^6.8.6",
-    "next": "15.3.2",
+    "mongoose": "^8.18.2",
+    "multer": "^2.0.2",
+    "next": "^15.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
@@ -27,5 +32,18 @@
     "eslint-config-next": "15.3.2",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flavianokoth/Lensed-memoir-photography-website.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flavianokoth/Lensed-memoir-photography-website/issues"
+  },
+  "homepage": "https://github.com/flavianokoth/Lensed-memoir-photography-website#readme"
 }

@@ -3,9 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  const aboutLink = pathname === "/" ? "#about" : "/#about";
+  const servicesLink = pathname === "/" ? "#services" : "/#services";
+  const galleryLink = pathname === "/" ? "#gallery" : "/#gallery";
+  const contactLink = pathname === "/" ? "#contact" : "/#contact";
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-md">
@@ -33,27 +40,27 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href="#about">
+            <Link className="hover:text-gray-700" href={aboutLink}>
               About&nbsp;Us
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href="#services">
+            <Link className="hover:text-gray-700" href={servicesLink}>
               Services
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href="#gallery">
+            <Link className="hover:text-gray-700" href={galleryLink}>
               Gallery
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href="#contact">
+            <Link className="hover:text-gray-700" href={contactLink}>
               Contact&nbsp;Us
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href="/blog">
+            <Link className="hover:text-gray-700" href="/Blog">
               Blog
             </Link>
           </li>
@@ -116,27 +123,27 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700"  href="#about" onClick={() => setOpen(false)}>
+            <Link className="hover:text-gray-700"  href={aboutLink} onClick={() => setOpen(false)}>
               About&nbsp;Us
             </Link>
           </li>
           <li>
-            <Link  className="hover:text-gray-700"  href="#services" onClick={() => setOpen(false)}>
+            <Link  className="hover:text-gray-700"  href={servicesLink} onClick={() => setOpen(false)}>
               Services
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700"  href="#gallery" onClick={() => setOpen(false)}>
+            <Link className="hover:text-gray-700"  href={galleryLink} onClick={() => setOpen(false)}>
               Gallery
             </Link>
           </li>
           <li>
-            <Link  className="hover:text-gray-700"  href="#contact" onClick={() => setOpen(false)}>
+            <Link  className="hover:text-gray-700"  href={contactLink} onClick={() => setOpen(false)}>
               Contact&nbsp;Us
             </Link>
           </li>
           <li>
-            <Link   className="hover:text-gray-700" href="/blog" onClick={() => setOpen(false)}>
+            <Link   className="hover:text-gray-700" href="/#blog" onClick={() => setOpen(false)}>
               Blog
             </Link>
           </li>
