@@ -6,7 +6,7 @@ import ServicesSection from './Home/Hero-Section/Services/page'
 import GallerySection from './Home/Hero-Section/Gallery-Section/page'
 import ScheduleSection from './Home/Hero-Section/Schedule-Section/page'
 import SendMessageSection from './Home/Hero-Section/contact-us/page'
-import FaqPage from './Home/Hero-Section/Faq\'s/page'
+import FaqPage from './Home/Hero-Section/Faqs/page'
 
 export default function Home() {
   return (
