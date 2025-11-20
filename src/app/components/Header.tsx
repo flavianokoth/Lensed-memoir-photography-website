@@ -1,21 +1,86 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
+type HeaderTheme = "light" | "dark";
+
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState<HeaderTheme>("dark");
   const pathname = usePathname();
 
-  const aboutLink = pathname === "/" ? "#about" : "/#about";
-  const servicesLink = pathname === "/" ? "#services" : "/#services";
-  const galleryLink = pathname === "/" ? "#gallery" : "/#gallery";
-  const contactLink = pathname === "/" ? "#contact" : "/#contact";
+  const isLightTheme = theme === "light";
+
+  const navLinkBase =
+    "transition-colors duration-200 font-medium " +
+    (isLightTheme ? "text-[#05554F] hover:text-[#ff7b00]" : "text-white hover:text-gray-300");
+
+  const scheduleBtnClasses = useMemo(
+    () =>
+      `px-6 py-2 text-sm font-semibold rounded-lg transition transform hover:scale-105 duration-200 ${
+        isLightTheme
+          ? "text-[#05554F] border border-[#05554F] bg-white/80 hover:bg-white"
+          : "text-white border border-white hover:underline"
+      }`,
+    [isLightTheme]
+  );
+
+  const headerBackground = isLightTheme
+    ? "bg-white/95 text-[#05554F] shadow-lg border-b border-gray-100"
+    : "bg-white/10 text-white backdrop-blur-md";
+
+  const mobileMenuClasses = isLightTheme
+    ? "bg-white text-[#05554F]"
+    : "bg-[#05554F] text-white";
+
+  const anchorHref = (hash: string) =>
+    pathname === "/" ? `#${hash}` : `/#${hash}`;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const topEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (topEntry) {
+          const nextTheme =
+            (topEntry.target.getAttribute("data-header-theme") as HeaderTheme) ||
+            "dark";
+          setTheme(nextTheme);
+        }
+      },
+      { threshold: [0.25, 0.5, 0.75] }
+    );
+
+    const observed = new Set<Element>();
+    const watch = () => {
+      document
+        .querySelectorAll<HTMLElement>("[data-header-theme]")
+        .forEach((section) => {
+          if (!observed.has(section)) {
+            observer.observe(section);
+            observed.add(section);
+          }
+        });
+    };
+
+    watch();
+
+    const mutation = new MutationObserver(() => watch());
+    mutation.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutation.disconnect();
+    };
+  }, []);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-md">
+    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${headerBackground}`}>
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:py-4">
         {/* Logo + Title */}
         <div className="flex items-center gap-2">
@@ -25,7 +90,11 @@ export default function Header() {
             width={36}
             height={36}
           />
-          <span className="text-xl font-bold tracking-tight text-white">
+          <span
+            className={`text-xl font-bold tracking-tight ${
+              isLightTheme ? "text-[#05554F]" : "text-white"
+            }`}
+          >
             LENSED&nbsp;MEMOIR
             <br />
             PHOTOGRAPHY
@@ -33,52 +102,57 @@ export default function Header() {
         </div>
 
         {/* Desktop links */}
-        <ul className="hidden md:flex items-center gap-8 text-white">
+        <ul className="hidden md:flex items-center gap-8">
           <li>
-            <Link className="hover:text-gray-700" href="/">
+            <Link href="/" className={navLinkBase}>
               Home
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href={aboutLink}>
-              About&nbsp;Us
+            <Link href={anchorHref("about")} className={navLinkBase}>
+              About
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href={servicesLink}>
+            <Link href={anchorHref("services")} className={navLinkBase}>
               Services
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href={galleryLink}>
+            <Link href={anchorHref("gallery")} className={navLinkBase}>
               Gallery
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href={contactLink}>
-              Contact&nbsp;Us
+            <Link href={anchorHref("faqs")} className={navLinkBase}>
+              FAQs
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700" href="/Blog">
+            <Link href={anchorHref("contact")} className={navLinkBase}>
+              Contact
+            </Link>
+          </li>
+          <li>
+            <Link href="/blog" className={navLinkBase}>
               Blog
             </Link>
           </li>
         </ul>
 
-        {/* Schedule Us button*/}
+        {/* Schedule Us button */}
         <div className="hidden sm:block">
-          <Link
-            href="/schedule"
-            className="px-6 py-2 text-sm font-semibold text-white border border-white rounded-lg hover:underline transition transform hover:scale-105 duration-200"
-          >
-            Schedule&nbsp;Us
-          </Link>
+            <Link
+              href={anchorHref("Schedule-Section")}
+              className={scheduleBtnClasses}
+            >
+              Schedule&nbsp;Us
+            </Link>
         </div>
 
         {/* Mobile Book button */}
         <Link
-          href="/schedule"
+          href={anchorHref("Schedule-Section")}
           className="sm:hidden rounded-lg bg-[#ff7b00] px-3 py-1.5 text-sm font-semibold text-white "
         >
           Book
@@ -87,7 +161,9 @@ export default function Header() {
         {/* Hamburger */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden ml-2 inline-flex items-center justify-center p-2 text-white focus:outline-none"
+          className={`md:hidden ml-2 inline-flex items-center justify-center p-2 ${
+            isLightTheme ? "text-[#05554F]" : "text-white"
+          } focus:outline-none`}
           aria-label="Menu"
         >
           <svg
@@ -116,42 +192,70 @@ export default function Header() {
 
       {/* Mobile menu */}
       {open && (
-        <ul className="md:hidden space-y-4 px-6 pb-4 text-white bg-[#05554F] ">
+        <ul className={`md:hidden space-y-4 px-6 pb-4 ${mobileMenuClasses}`}>
           <li>
-            <Link  className="hover:text-gray-700" href="/" onClick={() => setOpen(false)}>
+            <Link href="/" onClick={() => setOpen(false)} className="block">
               Home
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700"  href={aboutLink} onClick={() => setOpen(false)}>
+            <Link
+              href={anchorHref("about")}
+              onClick={() => setOpen(false)}
+              className="block hover:opacity-70 transition"
+            >
               About&nbsp;Us
             </Link>
           </li>
           <li>
-            <Link  className="hover:text-gray-700"  href={servicesLink} onClick={() => setOpen(false)}>
+            <Link
+              href={anchorHref("services")}
+              onClick={() => setOpen(false)}
+              className="block hover:opacity-70 transition"
+            >
               Services
             </Link>
           </li>
           <li>
-            <Link className="hover:text-gray-700"  href={galleryLink} onClick={() => setOpen(false)}>
+            <Link
+              href={anchorHref("gallery")}
+              onClick={() => setOpen(false)}
+              className="block hover:opacity-70 transition"
+            >
               Gallery
             </Link>
           </li>
           <li>
-            <Link  className="hover:text-gray-700"  href={contactLink} onClick={() => setOpen(false)}>
+            <Link
+              href={anchorHref("faqs")}
+              onClick={() => setOpen(false)}
+              className="block hover:opacity-70 transition"
+            >
+              FAQs
+            </Link>
+          </li>
+          <li>
+            <Link
+              href={anchorHref("contact")}
+              onClick={() => setOpen(false)}
+              className="block hover:opacity-70 transition"
+            >
               Contact&nbsp;Us
             </Link>
           </li>
           <li>
-            <Link   className="hover:text-gray-700" href="/#blog" onClick={() => setOpen(false)}>
+            <Link
+              href="/blog"
+              onClick={() => setOpen(false)}
+              className={`block ${navLinkBase}`}
+            >
               Blog
             </Link>
           </li>
           <li>
             <Link
-              href="/schedule"
+              href={anchorHref("Schedule-Section")}
               className="block rounded-lg bg-[#ff7b00] px-4 py-2 text-center font-semibold text-white hover:bg-[#ff9433] transition"
-              onClick={() => setOpen(false)}
             >
               Schedule&nbsp;Us
             </Link>

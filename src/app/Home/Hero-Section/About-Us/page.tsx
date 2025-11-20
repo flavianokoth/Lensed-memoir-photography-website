@@ -3,24 +3,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useInView } from "react-intersection-observer";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function AboutPage() {
-  const { ref, inView } = useInView({ threshold: 0.2 });
+  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
 
   return (
     <section
+      id="about"
+      data-header-theme="dark"
+      ref={ref}
       className="bg-cover bg-center bg-no-repeat py-20 px-4 sm:px-8 lg:px-16"
       style={{ backgroundImage: "url('/aboutsection.jpg')" }}
     >
-      <AnimatePresence>
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 50 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
-        >
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={inView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
+      >
           {/* Left Image */}
           <div className="w-full h-80 relative">
             <Image
@@ -55,8 +56,7 @@ export default function AboutPage() {
               Contact Us
             </Link>
           </div>
-        </motion.div>
-      </AnimatePresence>
+      </motion.div>
     </section>
   );
 }

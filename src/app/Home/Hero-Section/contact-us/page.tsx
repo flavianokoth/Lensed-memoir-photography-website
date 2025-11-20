@@ -2,7 +2,11 @@
 
 const ScheduleSection: React.FC = () => {
   return (
-    <section className="py-10 bg-gray-100 flex justify-center items-center">
+    <section
+      id="contact"
+      data-header-theme="light"
+      className="py-10 bg-gray-100 flex justify-center items-center"
+    >
       <div className="max-w-4xl w-full flex flex-col md:flex-row gap-8 p-6">
         {/* Left Form Section */}
         <div className="w-full md:w-2/3 bg-white p-6 rounded-lg shadow-md">

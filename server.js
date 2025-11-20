@@ -34,11 +34,26 @@ const BlogSchema = new mongoose.Schema({
   content: String,
   createdAt: { type: Date, default: Date.now },
 });
+const ReplySchema = new mongoose.Schema(
+  {
+    name: String,
+    text: String,
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 const CommentSchema = new mongoose.Schema({
   blogId: mongoose.Schema.Types.ObjectId,
   name: String,
   text: String,
   createdAt: { type: Date, default: Date.now },
+  replies: { type: [ReplySchema], default: [] },
+  reactions: {
+    like: { type: Number, default: 0 },
+    love: { type: Number, default: 0 },
+    laugh: { type: Number, default: 0 },
+  },
 });
 
 const Photo = mongoose.model("Photo", PhotoSchema);
@@ -113,6 +128,56 @@ app.get("/api/comments/:blogId", async (req, res) => {
     res.json(comments);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch comments" });
+  }
+});
+
+app.post("/api/comments/:commentId/reply", async (req, res) => {
+  try {
+    const { name, text } = req.body;
+    if (!name || !text) {
+      return res.status(400).json({ error: "Name and text are required" });
+    }
+
+    const comment = await Comment.findByIdAndUpdate(
+      req.params.commentId,
+      {
+        $push: { replies: { name, text } },
+      },
+      { new: true }
+    );
+
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    res.json(comment);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to add reply" });
+  }
+});
+
+app.post("/api/comments/:commentId/react", async (req, res) => {
+  try {
+    const { type } = req.body;
+    const allowed = ["like", "love", "laugh"];
+
+    if (!allowed.includes(type)) {
+      return res.status(400).json({ error: "Invalid reaction type" });
+    }
+
+    const comment = await Comment.findByIdAndUpdate(
+      req.params.commentId,
+      { $inc: { [`reactions.${type}`]: 1 } },
+      { new: true }
+    );
+
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    res.json(comment);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to add reaction" });
   }
 });
 

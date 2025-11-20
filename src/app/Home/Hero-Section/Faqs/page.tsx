@@ -33,7 +33,7 @@ export default function FaqsPage() {
   };
 
   return (
-    <section id="faq" className="max-w-2xl mx-auto py-12 px-4">
+    <section id="faqs" data-header-theme="light" className="max-w-2xl mx-auto py-12 px-4">
       <h2 className="text-3xl font-bold mb-8 text-center text-[#05554F]">
         Frequently Asked Questions
       </h2>
