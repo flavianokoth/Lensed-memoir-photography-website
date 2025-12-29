@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useInView } from "react-intersection-observer";
+import { motion } from "framer-motion";
 
 const faqs = [
   {
@@ -27,20 +29,33 @@ const faqs = [
 
 export default function FaqsPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: false });
 
   const toggleFaq = (idx: number) => {
     setOpenIndex(openIndex === idx ? null : idx);
   };
 
   return (
-    <section id="faqs" data-header-theme="light" className="max-w-2xl mx-auto py-12 px-4">
-      <h2 className="text-3xl font-bold mb-8 text-center text-[#05554F]">
+    <section id="faqs" data-header-theme="light" ref={ref} className="max-w-2xl mx-auto py-12 px-4">
+      <motion.h2
+        initial={{ opacity: 0, y: 80, scale: 0.8 }}
+        animate={inView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 80, scale: 0.8 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="text-3xl font-bold mb-8 text-center text-[#05554F]"
+      >
         Frequently Asked Questions
-      </h2>
+      </motion.h2>
       <div className="space-y-4">
         {faqs.map((faq, idx) => (
-          <div
+          <motion.div
             key={idx}
+            initial={{ opacity: 0, x: -150, scale: 0.8 }}
+            animate={inView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -150, scale: 0.8 }}
+            transition={{ 
+              duration: 0.6, 
+              ease: "easeOut",
+              delay: idx * 0.15 
+            }}
             className="bg-white shadow-lg rounded-lg p-4 transition-all duration-200"
           >
             <button
@@ -88,7 +103,7 @@ export default function FaqsPage() {
             {openIndex === idx && (
               <p className="mt-2 text-gray-700">{faq.answer}</p>
             )}
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>

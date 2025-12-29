@@ -80,18 +80,22 @@ export default function Header() {
   }, []);
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-colors ${headerBackground}`}>
+    <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${headerBackground}`}>
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:py-4">
-        {/* Logo + Title */}
-        <div className="flex items-center gap-2">
-          <Image
-            src="/LENSED MEMOIR.png"
-            alt="Lensed Memoir logo"
-            width={36}
-            height={36}
-          />
+        {/* Logo + Title - Now with consistent background */}
+        <Link href="/" className="flex items-center gap-3 bg-inherit">
+          <div className="relative flex-shrink-0">
+            <Image
+              src="/lensed logo.jpg"
+              alt="Lensed Memoir logo"
+              width={40}
+              height={40}
+              className="rounded-full object-cover" // optional: rounded logo
+              priority
+            />
+          </div>
           <span
-            className={`text-xl font-bold tracking-tight ${
+            className={`text-xl font-bold tracking-tight leading-tight ${
               isLightTheme ? "text-[#05554F]" : "text-white"
             }`}
           >
@@ -99,7 +103,7 @@ export default function Header() {
             <br />
             PHOTOGRAPHY
           </span>
-        </div>
+        </Link>
 
         {/* Desktop links */}
         <ul className="hidden md:flex items-center gap-8">
@@ -140,20 +144,20 @@ export default function Header() {
           </li>
         </ul>
 
-        {/* Schedule Us button */}
+        {/* Schedule Us button - Desktop */}
         <div className="hidden sm:block">
-            <Link
-              href={anchorHref("Schedule-Section")}
-              className={scheduleBtnClasses}
-            >
-              Schedule&nbsp;Us
-            </Link>
+          <Link
+            href={anchorHref("Schedule-Section")}
+            className={scheduleBtnClasses}
+          >
+            Schedule&nbsp;Us
+          </Link>
         </div>
 
         {/* Mobile Book button */}
         <Link
           href={anchorHref("Schedule-Section")}
-          className="sm:hidden rounded-lg bg-[#ff7b00] px-3 py-1.5 text-sm font-semibold text-white "
+          className="sm:hidden rounded-lg bg-[#ff7b00] px-4 py-2 text-sm font-semibold text-white shadow-md"
         >
           Book
         </Link>
@@ -161,7 +165,7 @@ export default function Header() {
         {/* Hamburger */}
         <button
           onClick={() => setOpen(!open)}
-          className={`md:hidden ml-2 inline-flex items-center justify-center p-2 ${
+          className={`md:hidden ml-4 inline-flex items-center justify-center p-2 rounded-md ${
             isLightTheme ? "text-[#05554F]" : "text-white"
           } focus:outline-none`}
           aria-label="Menu"
@@ -192,9 +196,9 @@ export default function Header() {
 
       {/* Mobile menu */}
       {open && (
-        <ul className={`md:hidden space-y-4 px-6 pb-4 ${mobileMenuClasses}`}>
+        <ul className={`md:hidden space-y-4 px-6 py-6 border-t border-white/20 ${mobileMenuClasses}`}>
           <li>
-            <Link href="/" onClick={() => setOpen(false)} className="block">
+            <Link href="/" onClick={() => setOpen(false)} className="block py-2">
               Home
             </Link>
           </li>
@@ -202,7 +206,7 @@ export default function Header() {
             <Link
               href={anchorHref("about")}
               onClick={() => setOpen(false)}
-              className="block hover:opacity-70 transition"
+              className="block py-2 hover:opacity-70 transition"
             >
               About&nbsp;Us
             </Link>
@@ -211,7 +215,7 @@ export default function Header() {
             <Link
               href={anchorHref("services")}
               onClick={() => setOpen(false)}
-              className="block hover:opacity-70 transition"
+              className="block py-2 hover:opacity-70 transition"
             >
               Services
             </Link>
@@ -220,7 +224,7 @@ export default function Header() {
             <Link
               href={anchorHref("gallery")}
               onClick={() => setOpen(false)}
-              className="block hover:opacity-70 transition"
+              className="block py-2 hover:opacity-70 transition"
             >
               Gallery
             </Link>
@@ -229,7 +233,7 @@ export default function Header() {
             <Link
               href={anchorHref("faqs")}
               onClick={() => setOpen(false)}
-              className="block hover:opacity-70 transition"
+              className="block py-2 hover:opacity-70 transition"
             >
               FAQs
             </Link>
@@ -238,7 +242,7 @@ export default function Header() {
             <Link
               href={anchorHref("contact")}
               onClick={() => setOpen(false)}
-              className="block hover:opacity-70 transition"
+              className="block py-2 hover:opacity-70 transition"
             >
               Contact&nbsp;Us
             </Link>
@@ -247,15 +251,16 @@ export default function Header() {
             <Link
               href="/blog"
               onClick={() => setOpen(false)}
-              className={`block ${navLinkBase}`}
+              className="block py-2"
             >
               Blog
             </Link>
           </li>
-          <li>
+          <li className="pt-4">
             <Link
               href={anchorHref("Schedule-Section")}
-              className="block rounded-lg bg-[#ff7b00] px-4 py-2 text-center font-semibold text-white hover:bg-[#ff9433] transition"
+              onClick={() => setOpen(false)}
+              className="block rounded-lg bg-[#ff7b00] px-6 py-3 text-center text-lg font-semibold text-white hover:bg-[#ff9433] transition shadow-lg"
             >
               Schedule&nbsp;Us
             </Link>

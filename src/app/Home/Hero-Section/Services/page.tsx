@@ -53,7 +53,7 @@ const services = [
 
 // Services Section Component
 export default function ServicesSection() {
-  const { ref: inViewRef, inView } = useInView({ threshold: 0.2, triggerOnce: true });
+  const { ref: inViewRef, inView } = useInView({ threshold: 0.1, triggerOnce: false });
 
   return (
     <section
@@ -63,9 +63,9 @@ export default function ServicesSection() {
       className="py-24 px-4 sm:px-8 lg:px-16 bg-amber-50"
     >
       <motion.div
-        initial={{ opacity: 0, y: 60 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        initial={{ opacity: 0, y: 80 }}
+        animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 80 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
         className="text-center"
       >
              <h2 className="text-yellow-500 text-sm font-bold uppercase tracking-wide mb-2">
@@ -74,11 +74,19 @@ export default function ServicesSection() {
              <h3 className="text-3xl md:text-4xl font-bold text-black mb-12">
                Professional Photography Services
              </h3>
+      </motion.div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {services.map(({ title, description, link, icon: Icon }, index) => (
-                 <div
+                <motion.div
                   key={title}
+                  initial={{ opacity: 0, y: 100, scale: 0.7 }}
+                  animate={inView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 100, scale: 0.7 }}
+                  transition={{ 
+                    duration: 0.6, 
+                    ease: "easeOut",
+                    delay: index * 0.15 
+                  }}
                   className={`bg-white shadow-lg rounded-2xl p-6 text-left flex flex-col gap-4 border border-white hover:border-yellow-200 transition ${
                     index >= 4 ? "lg:col-span-2" : ""
                   }`}
@@ -100,10 +108,9 @@ export default function ServicesSection() {
                   >
                     Learn more <span className="ml-2">&#8594;</span>
                   </Link>
-                </div>
+                </motion.div>
               ))}
             </div>
-      </motion.div>
     </section>
   );
 }

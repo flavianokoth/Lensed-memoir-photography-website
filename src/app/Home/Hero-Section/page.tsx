@@ -33,7 +33,7 @@ export default function HomeHero() {
 
         <div className="flex flex-wrap gap-4">
           <Link
-            href="#contact"
+            href="/Contact"
             className="text-white border border-white px-6 py-2 rounded-md text-sm font-medium hover:bg-white hover:text-black transition"
           >
             Contact Us

@@ -5,7 +5,8 @@ import nextDynamic from "next/dynamic";
 type HeaderTheme = "light" | "dark";
 
 const AboutPage = nextDynamic(
-  () => import("../Home/Hero-Section/About-Us/page"),
+  // ensure the promise resolves to the component (not the module object)
+  () => import("../Home/Hero-Section/About-Us/page").then((m) => m.default),
   {
     loading: () => (
       <SectionSkeleton
@@ -18,7 +19,7 @@ const AboutPage = nextDynamic(
 );
 
 const ServicesSection = nextDynamic(
-  () => import("../Home/Hero-Section/Services/page"),
+  () => import("../Home/Hero-Section/Services/page").then((m) => m.default),
   {
     ssr: false,
     loading: () => (
@@ -32,7 +33,7 @@ const ServicesSection = nextDynamic(
 );
 
 const GallerySection = nextDynamic(
-  () => import("../Home/Hero-Section/Gallery-Section/page"),
+  () => import("../Home/Hero-Section/Gallery-Section/page").then((m) => m.default),
   {
     ssr: false,
     loading: () => (
@@ -46,7 +47,7 @@ const GallerySection = nextDynamic(
 );
 
 const ScheduleSection = nextDynamic(
-  () => import("../Home/Hero-Section/Schedule-Section/page"),
+  () => import("../Home/Hero-Section/Schedule-Section/page").then((m) => m.default),
   {
     ssr: false,
     loading: () => (
@@ -59,22 +60,8 @@ const ScheduleSection = nextDynamic(
   }
 );
 
-const SendMessageSection = nextDynamic(
-  () => import("../Home/Hero-Section/contact-us/page"),
-  {
-    ssr: false,
-    loading: () => (
-      <SectionSkeleton
-        id="contact"
-        title="Loading contact form..."
-        theme="light"
-      />
-    ),
-  }
-);
-
 const FaqsPage = nextDynamic(
-  () => import("../Home/Hero-Section/Faqs/page"),
+  () => import("../Home/Hero-Section/Faqs/page").then((m) => m.default),
   {
     ssr: false,
     loading: () => (
@@ -112,9 +99,7 @@ export default function DeferredSections() {
       <ServicesSection />
       <GallerySection />
       <ScheduleSection />
-      <SendMessageSection />
       <FaqsPage />
     </>
   );
 }
-

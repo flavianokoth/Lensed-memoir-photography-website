@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function ScheduleSection() {
-  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
+  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: false });
 
   return (
     <section
@@ -28,29 +28,40 @@ export default function ScheduleSection() {
         <div className="absolute inset-0 bg-green-800 bg-opacity-30 backdrop-blur-sm"></div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 60 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-10 max-w-3xl mx-auto text-center text-white"
-      >
-            <h2 className="text-yellow-500 text-sm font-bold uppercase tracking-widest mb-4">
-              Schedule Now
-            </h2>
-
-            <p className="text-3xl font-semibold whitespace-pre-line leading-snug mb-8">
-              Ready To Capture Your Unique Story?
-              {"\n"}Let’s Book Your Session
-              {"\n"}Today!
-            </p>
-
-            <Link
-              href="/contact"
-              className="inline-block border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black font-medium px-8 py-3 rounded-full transition"
+      <div className="relative z-10 max-w-3xl mx-auto text-center text-white">
+            <motion.h2
+              initial={{ opacity: 0, y: 80, scale: 0.8 }}
+              animate={inView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 80, scale: 0.8 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="text-yellow-500 text-sm font-bold uppercase tracking-widest mb-4"
             >
               Schedule Now
-            </Link>
-      </motion.div>
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 100, scale: 0.8 }}
+              animate={inView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 100, scale: 0.8 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
+              className="text-3xl font-semibold whitespace-pre-line leading-snug mb-8"
+            >
+              Ready To Capture Your Unique Story?
+              {"\n"}Let&aposs Book Your Session
+              {"\n"}Today!
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 80, scale: 0.7 }}
+              animate={inView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 80, scale: 0.7 }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.6 }}
+            >
+              <Link
+                href="/Contact"
+                className="inline-block border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black font-medium px-8 py-3 rounded-full transition"
+              >
+                Schedule Now
+              </Link>
+            </motion.div>
+      </div>
     </section>
   );
 }

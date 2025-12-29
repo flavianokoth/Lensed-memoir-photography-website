@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Header from "../components/Header";
 
 const API = "http://localhost:4000/api";
 const isAdmin = false;
@@ -8,6 +9,11 @@ interface Blog {
   _id: string;
   title: string;
   content: string;
+  reactions?: {
+    like?: number;
+    love?: number;
+    laugh?: number;
+  };
 }
 
 interface Reply {
@@ -122,9 +128,26 @@ export default function BlogPage() {
     }
   };
 
+  // React to a blog post
+  const handleBlogReact = async (blogId: string, type: string) => {
+    try {
+      const res = await fetch(`${API}/blogs/${blogId}/react`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+      const updatedBlog = await res.json();
+      setBlogs(blogs.map(b => b._id === blogId ? updatedBlog : b));
+    } catch (err) {
+      console.error("Error reacting to blog:", err);
+    }
+  };
+
   return (
-    <section className="max-w-2xl mx-auto py-12 px-4">
-      <h2 className="text-3xl font-bold mb-8 text-center text-[#05554F]">Blog</h2>
+    <div>
+      <Header />
+      <section className="max-w-2xl mx-auto py-12 px-4 pt-32">
+        <h2 className="text-3xl font-bold mb-8 text-center text-[#05554F]">Blog</h2>
 
       {isAdmin && (
         <form onSubmit={handleBlogSubmit} className="mb-8 space-y-4">
@@ -163,6 +186,29 @@ export default function BlogPage() {
             <div key={blog._id} className="border-b pb-4">
               <h3 className="text-xl font-bold text-[#05554F]">{blog.title}</h3>
               <p className="mt-2 text-gray-700 whitespace-pre-line">{blog.content}</p>
+              
+              {/* Blog Reactions */}
+              <div className="flex gap-4 mt-3 mb-3">
+                <button 
+                  onClick={() => handleBlogReact(blog._id, "like")} 
+                  className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition"
+                >
+                  👍 <span>{blog.reactions?.like || 0}</span>
+                </button>
+                <button 
+                  onClick={() => handleBlogReact(blog._id, "love")} 
+                  className="flex items-center gap-1 text-red-500 hover:text-red-600 transition"
+                >
+                  ❤️ <span>{blog.reactions?.love || 0}</span>
+                </button>
+                <button 
+                  onClick={() => handleBlogReact(blog._id, "laugh")} 
+                  className="flex items-center gap-1 text-yellow-500 hover:text-yellow-600 transition"
+                >
+                  😂 <span>{blog.reactions?.laugh || 0}</span>
+                </button>
+              </div>
+
               <button
                 className="mt-2 text-sm text-[#ff7b00] underline"
                 onClick={() => {
@@ -264,5 +310,6 @@ export default function BlogPage() {
         )}
       </div>
     </section>
+    </div>
   );
 }

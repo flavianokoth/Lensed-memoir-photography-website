@@ -33,6 +33,11 @@ const BlogSchema = new mongoose.Schema({
   title: String,
   content: String,
   createdAt: { type: Date, default: Date.now },
+  reactions: {
+    like: { type: Number, default: 0 },
+    love: { type: Number, default: 0 },
+    laugh: { type: Number, default: 0 },
+  },
 });
 const ReplySchema = new mongoose.Schema(
   {
@@ -82,10 +87,32 @@ app.post("/api/photos", upload.single("photo"), async (req, res) => {
 // Get all photos
 app.get("/api/photos", async (req, res) => {
   try {
-    const photos = await Photo.find();
+    const photos = await Photo.find().sort({ _id: -1 });
     res.json(photos);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch photos" });
+  }
+});
+
+// Delete a photo
+app.delete("/api/photos/:id", async (req, res) => {
+  try {
+    const photo = await Photo.findById(req.params.id);
+    if (!photo) {
+      return res.status(404).json({ error: "Photo not found" });
+    }
+    
+    // Delete the file from filesystem
+    const filePath = path.join(__dirname, photo.url);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    
+    // Delete from database
+    await Photo.findByIdAndDelete(req.params.id);
+    res.json({ message: "Photo deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete photo" });
   }
 });
 
@@ -107,6 +134,50 @@ app.get("/api/blogs", async (req, res) => {
     res.json(blogs);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch blogs" });
+  }
+});
+
+// Delete a blog
+app.delete("/api/blogs/:id", async (req, res) => {
+  try {
+    // Delete all comments associated with this blog
+    await Comment.deleteMany({ blogId: req.params.id });
+    
+    // Delete the blog
+    const blog = await Blog.findByIdAndDelete(req.params.id);
+    if (!blog) {
+      return res.status(404).json({ error: "Blog not found" });
+    }
+    
+    res.json({ message: "Blog deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete blog" });
+  }
+});
+
+// React to a blog post
+app.post("/api/blogs/:id/react", async (req, res) => {
+  try {
+    const { type } = req.body;
+    const allowed = ["like", "love", "laugh"];
+
+    if (!allowed.includes(type)) {
+      return res.status(400).json({ error: "Invalid reaction type" });
+    }
+
+    const blog = await Blog.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { [`reactions.${type}`]: 1 } },
+      { new: true }
+    );
+
+    if (!blog) {
+      return res.status(404).json({ error: "Blog not found" });
+    }
+
+    res.json(blog);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to add reaction" });
   }
 });
 

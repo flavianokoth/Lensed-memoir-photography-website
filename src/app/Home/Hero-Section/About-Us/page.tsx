@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
 
 export default function AboutPage() {
-  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
+  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: false });
 
   return (
     <section
@@ -16,24 +16,29 @@ export default function AboutPage() {
       className="bg-cover bg-center bg-no-repeat py-20 px-4 sm:px-8 lg:px-16"
       style={{ backgroundImage: "url('/aboutsection.jpg')" }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={inView ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
-      >
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           {/* Left Image */}
-          <div className="w-full h-80 relative">
+          <motion.div
+            initial={{ opacity: 0, x: -150, scale: 0.8 }}
+            animate={inView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -150, scale: 0.8 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="w-full h-80 relative"
+          >
             <Image
               src="/img25.png"
               alt="Photographer behind the lens"
               fill
               className="object-cover rounded-xl"
             />
-          </div>
+          </motion.div>
 
           {/* Right Text Content */}
-          <div className="text-white">
+          <motion.div
+            initial={{ opacity: 0, x: 150, scale: 0.8 }}
+            animate={inView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: 150, scale: 0.8 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-white"
+          >
             <h2 className="text-lg text-yellow-500 font-bold uppercase mb-2">
               About Us
             </h2>
@@ -50,13 +55,13 @@ export default function AboutPage() {
               into art.
             </p>
             <Link
-              href="/contact"
+              href="/Contact"
               className="inline-block border border-black rounded-full px-6 py-2 text-sm font-medium text-black hover:bg-gray-200 transition"
             >
               Contact Us
             </Link>
-          </div>
-      </motion.div>
+          </motion.div>
+      </div>
     </section>
   );
 }
