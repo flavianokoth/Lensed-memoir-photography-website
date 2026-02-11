@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "./components/Footer";
+import SupportAgent from "./components/SupportAgent";
 
 
 
@@ -26,6 +27,7 @@ export default function RootLayout({
       
           </main>
           <Footer />
+          <SupportAgent />
           </div>
       </body>
     </html>

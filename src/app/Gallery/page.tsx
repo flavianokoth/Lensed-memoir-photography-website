@@ -23,10 +23,14 @@ export default function GallerySection() {
     try {
       setLoading(true);
       const res = await fetch(`${API}/photos`);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch photos: ${res.status} ${res.statusText}`);
+      }
       const data = await res.json();
       setPhotos(data);
     } catch (err) {
       console.error("Error fetching photos:", err);
+      setPhotos([]);
     } finally {
       setLoading(false);
     }

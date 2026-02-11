@@ -23,13 +23,15 @@ export default function GallerySection() {
     try {
       setLoading(true);
       const res = await fetch(`${API}/photos`);
-      if (res.ok) {
-        const data = await res.json();
-        // Show only first 6 photos on home page
-        setGallery(data.slice(0, 6));
+      if (!res.ok) {
+        throw new Error(`Failed to fetch photos: ${res.status} ${res.statusText}`);
       }
+      const data = await res.json();
+      // Show only first 6 photos on home page
+      setGallery(data.slice(0, 6));
     } catch (err) {
       console.error("Error fetching photos:", err);
+      setGallery([]);
     } finally {
       setLoading(false);
     }

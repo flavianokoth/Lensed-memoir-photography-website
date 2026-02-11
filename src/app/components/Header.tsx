@@ -36,8 +36,7 @@ export default function Header() {
     ? "bg-white text-[#05554F]"
     : "bg-[#05554F] text-white";
 
-  const anchorHref = (hash: string) =>
-    pathname === "/" ? `#${hash}` : `/#${hash}`;
+  const anchorHref = (hash: string) => `/#${hash}`;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
