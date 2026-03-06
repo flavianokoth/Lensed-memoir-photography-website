@@ -18,7 +18,7 @@ const knowledgeBase = {
   },
   faq: {
     booking:
-      "You can book a session by clicking the 'Schedule Us' button on our website or contacting us through our contact page. We'll confirm availability and discuss your specific needs.",
+      "You can book a session by clicking the 'Schedule Us' button on our website (or going directly to the scheduling section at `/#Schedule-Section`). We'll confirm availability and discuss your specific needs.",
     turnaround:
       "You will receive your edited photos within 2 weeks after the shoot. Rush delivery options may be available upon request.",
     travel:
@@ -157,7 +157,7 @@ function findBestResponse(query: string): string {
     lowerQuery.includes("email") ||
     lowerQuery.includes("phone")
   ) {
-    return "You can contact us through our Contact Us page on the website. We'll respond to your inquiry as soon as possible. You can also click the 'Schedule Us' button to book a session directly.";
+    return "You can contact us through our Contact page at `/Contact`. We'll respond to your inquiry as soon as possible. You can also click the 'Schedule Us' button or go to `/#Schedule-Section` to book a session directly.";
   }
 
   // If no match found, return a helpful general response

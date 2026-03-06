@@ -2,21 +2,23 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Header from "../components/Header";
+import { supabase } from "@/lib/supabase";
 
-const API = "http://localhost:4000/api";
 const isAdmin = true; // Replace with real authentication in production
 
 interface Photo {
-  _id: string;
+  id: string;
   url: string;
+  storage_path: string;
   alt: string;
+  created_at: string;
 }
 
 interface Blog {
-  _id: string;
+  id: string;
   title: string;
   content: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export default function AdminPage() {
@@ -40,12 +42,15 @@ export default function AdminPage() {
     try {
       setLoadingPhotos(true);
       setServerError(false);
-      const res = await fetch(`${API}/photos`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      if (!supabase) {
+        throw new Error("Supabase is not configured. Missing env vars.");
       }
-      const data = await res.json();
-      setPhotos(data);
+      const { data, error } = await supabase
+        .from("photos")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setPhotos(data ?? []);
       setServerError(false);
     } catch (err) {
       console.error("Error fetching photos:", err);
@@ -58,12 +63,15 @@ export default function AdminPage() {
   const fetchBlogs = async () => {
     try {
       setLoadingBlogs(true);
-      const res = await fetch(`${API}/blogs`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      if (!supabase) {
+        throw new Error("Supabase is not configured. Missing env vars.");
       }
-      const data = await res.json();
-      setBlogs(data);
+      const { data, error } = await supabase
+        .from("blogs")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setBlogs(data ?? []);
       setServerError(false);
     } catch (err) {
       console.error("Error fetching blogs:", err);
@@ -77,24 +85,45 @@ export default function AdminPage() {
   const handlePhotoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!photo) return;
-    const formData = new FormData();
-    formData.append("photo", photo);
-    formData.append("alt", alt);
     try {
-      const res = await fetch(`${API}/photos`, {
-        method: "POST",
-        body: formData,
-      });
-      if (res.ok) {
-        setMessage("Photo uploaded!");
-        setPhoto(null);
-        setAlt("");
-        fetchPhotos();
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage("Photo upload failed.");
+      setMessage("");
+      setServerError(false);
+      if (!supabase) {
+        throw new Error("Supabase is not configured. Missing env vars.");
       }
-    } catch {
+
+      const ext = photo.name.split(".").pop() || "jpg";
+      const safeExt = ext.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const fileName = `${crypto.randomUUID()}.${safeExt}`;
+      const storagePath = `gallery/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("photos")
+        .upload(storagePath, photo, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from("photos")
+        .getPublicUrl(storagePath);
+      const publicUrl = publicUrlData.publicUrl;
+
+      const { error: insertError } = await supabase.from("photos").insert({
+        url: publicUrl,
+        storage_path: storagePath,
+        alt,
+      });
+      if (insertError) throw insertError;
+
+      setMessage("Photo uploaded!");
+      setPhoto(null);
+      setAlt("");
+      fetchPhotos();
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      console.error("Photo upload failed:", err);
       setMessage("Photo upload failed.");
     }
   };
@@ -103,17 +132,31 @@ export default function AdminPage() {
   const handleDeletePhoto = async (id: string) => {
     if (!confirm("Are you sure you want to delete this photo?")) return;
     try {
-      const res = await fetch(`${API}/photos/${id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        setMessage("Photo deleted!");
-        fetchPhotos();
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage("Photo deletion failed.");
+      if (!supabase) {
+        throw new Error("Supabase is not configured. Missing env vars.");
       }
-    } catch {
+      const toDelete = photos.find((p) => p.id === id);
+      if (!toDelete) {
+        setMessage("Photo not found.");
+        return;
+      }
+
+      const { error: storageError } = await supabase.storage
+        .from("photos")
+        .remove([toDelete.storage_path]);
+      if (storageError) throw storageError;
+
+      const { error: deleteError } = await supabase
+        .from("photos")
+        .delete()
+        .eq("id", id);
+      if (deleteError) throw deleteError;
+
+      setMessage("Photo deleted!");
+      fetchPhotos();
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      console.error("Photo deletion failed:", err);
       setMessage("Photo deletion failed.");
     }
   };
@@ -123,21 +166,19 @@ export default function AdminPage() {
     e.preventDefault();
     if (!title || !content) return;
     try {
-      const res = await fetch(`${API}/blogs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content }),
-      });
-      if (res.ok) {
-        setMessage("Blog posted!");
-        setTitle("");
-        setContent("");
-        fetchBlogs();
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage("Blog post failed.");
+      if (!supabase) {
+        throw new Error("Supabase is not configured. Missing env vars.");
       }
-    } catch {
+      const { error } = await supabase.from("blogs").insert({ title, content });
+      if (error) throw error;
+
+      setMessage("Blog posted!");
+      setTitle("");
+      setContent("");
+      fetchBlogs();
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      console.error("Blog post failed:", err);
       setMessage("Blog post failed.");
     }
   };
@@ -146,17 +187,17 @@ export default function AdminPage() {
   const handleDeleteBlog = async (id: string) => {
     if (!confirm("Are you sure you want to delete this blog post? All comments will also be deleted.")) return;
     try {
-      const res = await fetch(`${API}/blogs/${id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        setMessage("Blog deleted!");
-        fetchBlogs();
-        setTimeout(() => setMessage(""), 3000);
-      } else {
-        setMessage("Blog deletion failed.");
+      if (!supabase) {
+        throw new Error("Supabase is not configured. Missing env vars.");
       }
-    } catch {
+      const { error } = await supabase.from("blogs").delete().eq("id", id);
+      if (error) throw error;
+
+      setMessage("Blog deleted!");
+      fetchBlogs();
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      console.error("Blog deletion failed:", err);
       setMessage("Blog deletion failed.");
     }
   };
@@ -268,10 +309,10 @@ export default function AdminPage() {
               ) : (
                 <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                   {photos.map((photo) => (
-                    <div key={photo._id} className="relative group">
+                    <div key={photo.id} className="relative group">
                       <div className="relative w-full h-32 rounded-lg overflow-hidden">
                         <Image
-                          src={photo.url.startsWith("http") ? photo.url : `http://localhost:4000${photo.url}`}
+                          src={photo.url}
                           alt={photo.alt || "Gallery photo"}
                           fill
                           className="object-cover"
@@ -279,7 +320,7 @@ export default function AdminPage() {
                         />
                       </div>
                       <button
-                        onClick={() => handleDeletePhoto(photo._id)}
+                        onClick={() => handleDeletePhoto(photo.id)}
                         className="mt-2 w-full px-3 py-1 bg-red-500 text-white text-sm font-semibold rounded hover:bg-red-600 transition"
                       >
                         Delete
@@ -300,14 +341,14 @@ export default function AdminPage() {
               ) : (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {blogs.map((blog) => (
-                    <div key={blog._id} className="border border-gray-200 rounded-lg p-4">
+                    <div key={blog.id} className="border border-gray-200 rounded-lg p-4">
                       <h4 className="font-semibold text-[#05554F] mb-1">{blog.title}</h4>
                       <p className="text-sm text-gray-600 mb-2 line-clamp-2">{blog.content}</p>
                       <p className="text-xs text-gray-400 mb-2">
-                        {new Date(blog.createdAt).toLocaleDateString()}
+                        {new Date(blog.created_at).toLocaleDateString()}
                       </p>
                       <button
-                        onClick={() => handleDeleteBlog(blog._id)}
+                        onClick={() => handleDeleteBlog(blog.id)}
                         className="px-4 py-1 bg-red-500 text-white text-sm font-semibold rounded hover:bg-red-600 transition"
                       >
                         Delete

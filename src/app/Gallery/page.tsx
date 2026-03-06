@@ -2,13 +2,14 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Header from "../components/Header";
-
-const API = "http://localhost:4000/api";
+import { supabase } from "@/lib/supabase";
 
 interface Photo {
-  _id: string;
+  id: string;
   url: string;
+  storage_path: string;
   alt: string;
+  created_at: string;
 }
 
 export default function GallerySection() {
@@ -22,12 +23,15 @@ export default function GallerySection() {
   const fetchPhotos = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API}/photos`);
-      if (!res.ok) {
-        throw new Error(`Failed to fetch photos: ${res.status} ${res.statusText}`);
+      if (!supabase) {
+        throw new Error("Supabase is not configured. Missing env vars.");
       }
-      const data = await res.json();
-      setPhotos(data);
+      const { data, error } = await supabase
+        .from("photos")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      setPhotos(data ?? []);
     } catch (err) {
       console.error("Error fetching photos:", err);
       setPhotos([]);
@@ -49,9 +53,9 @@ export default function GallerySection() {
         ) : (
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-4">
             {photos.map((photo) => (
-              <div key={photo._id} className="mb-4 break-inside-avoid rounded-lg overflow-hidden shadow-lg">
+              <div key={photo.id} className="mb-4 break-inside-avoid rounded-lg overflow-hidden shadow-lg">
                 <Image
-                  src={photo.url.startsWith("http") ? photo.url : `http://localhost:4000${photo.url}`}
+                  src={photo.url}
                   alt={photo.alt || "Gallery photo"}
                   width={600}
                   height={400}

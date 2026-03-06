@@ -130,7 +130,7 @@ export default function Header() {
             </Link>
           </li>
           <li>
-            <Link href={anchorHref("contact")} className={navLinkBase}>
+            <Link href="/Contact" className={navLinkBase}>
               Contact
             </Link>
           </li>
@@ -237,7 +237,7 @@ export default function Header() {
           </li>
           <li>
             <Link
-              href={anchorHref("contact")}
+              href="/Contact"
               onClick={() => setOpen(false)}
               className="block py-2 hover:opacity-70 transition"
             >
