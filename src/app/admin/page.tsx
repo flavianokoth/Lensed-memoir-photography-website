@@ -94,7 +94,7 @@ export default function AdminPage() {
       } else {
         setMessage("Photo upload failed.");
       }
-    } catch (err) {
+    } catch {
       setMessage("Photo upload failed.");
     }
   };
@@ -113,7 +113,7 @@ export default function AdminPage() {
       } else {
         setMessage("Photo deletion failed.");
       }
-    } catch (err) {
+    } catch {
       setMessage("Photo deletion failed.");
     }
   };
@@ -137,7 +137,7 @@ export default function AdminPage() {
       } else {
         setMessage("Blog post failed.");
       }
-    } catch (err) {
+    } catch {
       setMessage("Blog post failed.");
     }
   };
@@ -156,7 +156,7 @@ export default function AdminPage() {
       } else {
         setMessage("Blog deletion failed.");
       }
-    } catch (err) {
+    } catch {
       setMessage("Blog deletion failed.");
     }
   };
