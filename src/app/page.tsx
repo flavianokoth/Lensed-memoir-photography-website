@@ -3,7 +3,7 @@ import DeferredSections from "./components/DeferredSections";
 import HomeHero from "./Home/Hero-Section/page";
 
 export const dynamic = "force-static";
-export const revalidate = 60 * 60; // refresh static shell hourly
+export const revalidate = 3600; // refresh static shell hourly
 
 export default function Home() {
   return (
@@ -14,3 +14,4 @@ export default function Home() {
     </div>
   );
 }
+
