@@ -18,6 +18,8 @@ interface Blog {
   id: string;
   title: string;
   content: string;
+  video_url: string | null;
+  video_storage_path: string | null;
   created_at: string;
 }
 
@@ -26,6 +28,8 @@ export default function AdminPage() {
   const [alt, setAlt] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [serverError, setServerError] = useState(false);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -169,12 +173,43 @@ export default function AdminPage() {
       if (!supabase) {
         throw new Error("Supabase is not configured. Missing env vars.");
       }
-      const { error } = await supabase.from("blogs").insert({ title, content });
+      let videoPublicUrl: string | null = videoUrl.trim() ? videoUrl.trim() : null;
+      let videoStoragePath: string | null = null;
+
+      if (videoFile) {
+        const ext = videoFile.name.split(".").pop() || "mp4";
+        const safeExt = ext.toLowerCase().replace(/[^a-z0-9]/g, "") || "mp4";
+        const fileName = `${crypto.randomUUID()}.${safeExt}`;
+        videoStoragePath = `blog/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("blog-videos")
+          .upload(videoStoragePath, videoFile, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: videoFile.type || undefined,
+          });
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from("blog-videos")
+          .getPublicUrl(videoStoragePath);
+        videoPublicUrl = publicUrlData.publicUrl;
+      }
+
+      const { error } = await supabase.from("blogs").insert({
+        title,
+        content,
+        video_url: videoPublicUrl,
+        video_storage_path: videoStoragePath,
+      });
       if (error) throw error;
 
       setMessage("Blog posted!");
       setTitle("");
       setContent("");
+      setVideoUrl("");
+      setVideoFile(null);
       fetchBlogs();
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
@@ -190,6 +225,19 @@ export default function AdminPage() {
       if (!supabase) {
         throw new Error("Supabase is not configured. Missing env vars.");
       }
+      const toDelete = blogs.find((b) => b.id === id);
+      if (!toDelete) {
+        setMessage("Blog not found.");
+        return;
+      }
+
+      if (toDelete.video_storage_path) {
+        const { error: storageError } = await supabase.storage
+          .from("blog-videos")
+          .remove([toDelete.video_storage_path]);
+        if (storageError) throw storageError;
+      }
+
       const { error } = await supabase.from("blogs").delete().eq("id", id);
       if (error) throw error;
 
@@ -279,6 +327,25 @@ export default function AdminPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   required
                 />
+                <input
+                  type="url"
+                  placeholder="Video URL (optional: YouTube or direct .mp4)"
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
+                  <p className="text-sm font-semibold text-[#05554F] mb-2">Or upload a video file (optional)</p>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    If you select a video file, it will be uploaded to Supabase Storage and used instead of the URL.
+                  </p>
+                </div>
                 <textarea
                   placeholder="Blog Content"
                   value={content}
